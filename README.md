@@ -86,3 +86,7 @@ file:write(
 ```
 
 ---
+## Fuentes utilizadas:
+[1] https://www.w3schools.com/
+
+Además del Notebook de la asignatura proporcionada por el docente y el contenido en Classroom.
