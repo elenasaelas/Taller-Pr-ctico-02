@@ -1,44 +1,88 @@
+# Retro Gaming Vault - HTML y XQuery
 
-1:
-for $item in /RetroGamingVault/Item
-where $item/@categoria = "Hardware" 
-      and xs:integer($item/AnioLanzamiento) < 1985
-order by xs:integer($item/AnioLanzamiento)
-return
-    <Catalogo>
-        <Nombre>{data($item/Nombre)}</Nombre>
-        <Fabricante>{data($item/Fabricante)}</Fabricante>
-        <Anio>{data($item/AnioLanzamiento)}</Anio>
-        <Valor>{data($item/ValorEstimado)} {data($item/ValorEstimado/@moneda)}</Valor>
-    </Catalogo>
+## Descripción
 
-2:
-for $item in /RetroGamingVault/Item
-where xs:integer($item/EstadoConservacion) = 5
-order by xs:decimal($item/ValorEstimado) descending
-return
-    <ItemMenta>
-        <Nombre>{data($item/Nombre)}</Nombre>
-        <Categoria>{data($item/@categoria)}</Categoria>
-        <ValorEstimado moneda="{data($item/ValorEstimado/@moneda)}">
-            {data($item/ValorEstimado)}
-        </ValorEstimado>
-    </ItemMenta>
+Este proyecto utiliza XQuery para consultar un documento XML llamado `reto_vault.xml` y generar automáticamente un archivo HTML con los resultados formateados. El archivo resultante (`retro_vault.html`) puede abrirse directamente en un navegador.
 
-3. 
+Se implementan tres consultas principales:
+
+1. Catálogo interactivo de ítems de tipo "Hardware" lanzados antes de 1985 (La era dorada).
+2. Informe de valor de la colección: listado de objetos con estado de conservación 5 (Menta).
+3. Buscador por Serial Number que genere una página de "Certificado de Autenticidad" con los datos del ítem.
+
+---
+
+## Consultas implementadas
+
+### Consulta 1: Hardware anterior a 1985
+
+Filtra los elementos cuya categoría sea "Hardware" y cuyo año de lanzamiento sea menor a 1985.
+Ordena los resultados por año de lanzamiento de forma ascendente.
+
+Campos mostrados:
+
+* Nombre
+* Fabricante
+* Año de lanzamiento
+* Valor estimado
+* Moneda
+
+---
+
+### Consulta 2: Ítems en estado perfecto
+
+Filtra los elementos con estado de conservación igual a 5.
+Ordena los resultados por valor estimado de forma descendente.
+
+Campos mostrados:
+
+* Nombre
+* Categoría
+* Valor estimado
+
+---
+
+### Consulta 3: Búsqueda por número de serie
+
+Busca un ítem específico utilizando una variable:
+
+```xquery
 declare variable $serial as xs:string := "SN-000085#NI";
-for $item in /RetroGamingVault/Item
-where $item/SerialNumber = $serial
-return
-    <CertificadoAutenticidad>
-        <SerialNumber>{data($item/SerialNumber)}</SerialNumber>
-        <Nombre>{data($item/Nombre)}</Nombre>
-        <Categoria>{data($item/@categoria)}</Categoria>
-        <Fabricante>{data($item/Fabricante)}</Fabricante>
-        <AnioLanzamiento>{data($item/AnioLanzamiento)}</AnioLanzamiento>
-        <EstadoConservacion>{data($item/EstadoConservacion)}</EstadoConservacion>
-        <ValorEstimado moneda="{data($item/ValorEstimado/@moneda)}">
-            {data($item/ValorEstimado)}
-        </ValorEstimado>
-        <Certificacion>Auténtico</Certificacion>
-    </CertificadoAutenticidad>
+```
+
+Muestra todos los datos relevantes del ítem y añade una etiqueta visual de autenticidad.
+
+Campos mostrados:
+
+* Serial
+* Nombre
+* Categoría
+* Fabricante
+* Año de lanzamiento
+* Estado de conservación
+* Valor estimado
+* Moneda
+
+---
+
+## Generación del HTML
+
+El HTML se construye dinámicamente dentro de una variable en XQuery y se guarda utilizando la función `file:write`.
+
+Configuración recomendada:
+
+```xquery
+file:write(
+  "C:/ruta/proyecto/reto_vault.html",
+  $html,
+  map {
+    "method": "html",
+    "html-version": "5.0",
+    "indent": "yes",
+    "omit-xml-declaration": "yes",
+    "encoding": "UTF-8"
+  }
+)
+```
+
+---
