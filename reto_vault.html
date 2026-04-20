@@ -1,0 +1,149 @@
+xquery version "3.1";
+
+declare variable $serial as xs:string := "SN-000085#NI";
+
+let $html :=
+<html>
+  <head>
+    <meta charset="UTF-8"/>
+    <title>Retro Gaming Vault</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #0f172a;
+        color: #e2e8f0;
+        margin: 0;
+        padding: 20px;
+      }
+      h1 {
+        text-align: center;
+        color: #38bdf8;
+      }
+      section {
+        margin: 40px 0;
+      }
+      h2 {
+        color: #facc15;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #1e293b;
+      }
+      th, td {
+        padding: 10px;
+        border: 1px solid #334155;
+      }
+      th {
+        background-color: #334155;
+      }
+      tr:nth-child(even) {
+        background-color: #273449;
+      }
+      .card {
+        background-color: #1e293b;
+        padding: 20px;
+        border-radius: 10px;
+        max-width: 400px;
+      }
+      .auth {
+        color: #22c55e;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Retro Gaming Vault</h1>
+
+    <section>
+      <h2>Hardware anterior a 1985</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Fabricante</th>
+            <th>Año</th>
+            <th>Valor</th>
+            <th>Moneda</th>
+          </tr>
+        </thead>
+        <tbody>
+        {
+          for $item in /RetroGamingVault/Item
+          where $item/@categoria = "Hardware"
+            and xs:integer($item/AnioLanzamiento) lt 1985
+          order by xs:integer($item/AnioLanzamiento)
+          return
+            <tr>
+              <td>{string($item/Nombre)}</td>
+              <td>{string($item/Fabricante)}</td>
+              <td>{string($item/AnioLanzamiento)}</td>
+              <td>{string($item/ValorEstimado)}</td>
+              <td>{string($item/ValorEstimado/@moneda)}</td>
+            </tr>
+        }
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Items en estado perfecto</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+        {
+          for $item in /RetroGamingVault/Item
+          where xs:integer($item/EstadoConservacion) = 5
+          order by xs:decimal($item/ValorEstimado) descending
+          return
+            <tr>
+              <td>{string($item/Nombre)}</td>
+              <td>{string($item/@categoria)}</td>
+              <td>{string($item/ValorEstimado)}</td>
+            </tr>
+        }
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Búsqueda por número de serie</h2>
+      {
+        for $item in /RetroGamingVault/Item
+        where $item/SerialNumber = $serial
+        return
+          <div class="card">
+            <p><b>Serial:</b> {string($item/SerialNumber)}</p>
+            <p><b>Nombre:</b> {string($item/Nombre)}</p>
+            <p><b>Categoría:</b> {string($item/@categoria)}</p>
+            <p><b>Fabricante:</b> {string($item/Fabricante)}</p>
+            <p><b>Año:</b> {string($item/AnioLanzamiento)}</p>
+            <p><b>Estado:</b> {string($item/EstadoConservacion)}</p>
+            <p><b>Valor:</b> {string($item/ValorEstimado)} {string($item/ValorEstimado/@moneda)}</p>
+            <p class="auth">Auténtico</p>
+          </div>
+      }
+    </section>
+
+  </body>
+</html>
+
+return
+file:write(
+  "C:/ruta/proyecto/reto_vault.html",
+  $html,
+  map {
+    "method": "html",
+    "html-version": "5.0",
+    "indent": "yes",
+    "omit-xml-declaration": "yes",
+    "encoding": "UTF-8"
+  }
+)
